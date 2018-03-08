@@ -1,0 +1,15 @@
+
+body {
+    background-color:#00163a;
+    color: #3af43d;
+}
+h1 {
+    margin-top: 10%;
+}
+
+.request {
+    background-color: black;
+    border-radius: 5%;
+    padding: 5%;
+
+}

@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head th:replace="fragments/header :: header('Money request  form')"/>
+<link rel="stylesheet" type="text/css" th:href="@{/assets/css/index.css}" />
+<body>
+<div class="container" id ="app">
+    <form>
+        <div class="row">
+            <div class="six columns">
+                <label for="requestedUserInput">Requested user</label>
+                <select v-model="user" class="u-full-width" id="requestedUserInput">
+                    <option v-for="user in users" :value="user">{{user.username}} </option>
+                </select>
+            </div>
+        </div>
+        <div class="container">
+            <h1>Items: </h1>
+            <table class="u-full-width">
+                <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Category</th>
+                    <th>Price</th>
+                    <th>Quantity</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr  v-for="item in items">
+                    <td>{{item.name}}</td>
+                    <td>{{item.category}}</td>
+                    <td>{{item.price}}</td>
+                    <td>{{item.quantity}}</td>
+                </tr>
+                </tbody>
+            </table>
+        <div class="row">
+            <div class="twelve columns">
+                <label for="itemNameInput">Item name</label>
+                <input  v-model="itemName" class="u-full-width" type="text" placeholder="" id="itemNameInput"/>
+            </div>
+            <div class="twelve columns">
+                <label for="categoryInput">Category</label>
+                <input v-model="itemCategory" class="u-full-width" type="text" placeholder="" id="categoryInput"/>
+            </div>
+            <div class="twelve columns">
+                <label for="quantityInput">Quantity</label>
+                <input  v-model="itemQuantity" class="u-full-width" type="number" placeholder="" id="quantityInput"/>
+            </div>
+            <div class="twelve columns">
+                <label for="priceInput">Price</label>
+                <input v-model="itemPrice" class="u-full-width" type="number" placeholder="" id="priceInput"/>
+            </div>
+
+        </div>
+            <button v-on:click="addItem" class="button-primary" type="button">Add new item</button>
+        </div>
+
+        <div style="color: red;">
+            <h4 v-html="errorCommunicate">  </h4>
+        </div>
+        <input class="button-primary" type="button" v-on:click="postAddRequest" value="Submit"/>
+    </form>
+</div>
+
+</body>
+<div th:replace="fragments/footer :: foot"></div>
+<script src="/assets/js/moneyRequestForm.js"></script>
+</html>

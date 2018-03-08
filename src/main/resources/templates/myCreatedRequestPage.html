@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <head th:replace="fragments/header :: header('My requests')" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/moneyRequestPage.css}" />
+</head>
+<div class="container" id ="moneyReq">
+    <p>Item sort options: </p>
+    <select v-on:change="switchSortMethod" v-model="sortingParam" class="u-full-width">
+        <option value="">Default</option>
+        <option value="price">Price ascending</option>
+    </select>
+    <money-request class="request" v-for="moneyreq in money_requests" v-bind:moneyreq="moneyreq"></money-request>
+    <p>Click this button to add new request <a :href ="'/newRequest?access_token='+getToken()" class="button-primary" type="button" >Add new request </a> </p>
+</div>
+<body>
+
+
+</body>
+<div th:replace="fragments/footer :: foot"></div>
+<script>
+    var app = new Vue({
+        el: '#moneyReq',
+        data: {
+            money_requests: [],
+            sortingParam: ""
+        },
+        methods: {
+            getToken: function() {
+                return getCookie('access_token');
+            },
+            fetchSortedData: function(sortParam) {
+                fetchMoneyRequestsAndDoSth(function(response){
+                    app.$data.money_requests=response;
+                    console.log(response);
+                    console.log('sorted data fetched');
+                },"/moneyrequests/requested",sortParam);
+
+
+
+            },
+            switchSortMethod: function()  {
+                this.fetchSortedData(this.sortingParam);
+            }
+
+
+
+        },
+        mounted: function(){
+            if (getCookie('access_token')!=null) {
+                axios.get("/getusername?access_token="+getCookie('access_token'))
+                    .then((function(response){
+                        this.logged_in_user = response.data;
+                    }).bind(this)).catch(function(error) {
+                    console.log("cos sie zjebalo");
+                });
+                axios.get("/moneyrequests/requested?access_token="+getCookie('access_token'))
+                    .then((function(response){
+                        this.money_requests = response.data;
+                    }).bind(this)).catch(function(error) {
+                    console.log("cos sie zjebalo");
+                });
+
+            }
+        }
+
+    });
+</script>
+</html>

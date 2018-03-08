@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <head th:replace="fragments/header :: header('My debts')" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/moneyRequestPage.css}" />
+</head>
+<div class="container" id ="moneyReq">
+
+    <money-request class="request" v-for="moneyreq in money_requests" v-bind:moneyreq="moneyreq"></money-request>
+    <p>Click this button to add new request <a :href ="'/newRequest?access_token='+getToken()" class="button-primary" type="button" >Add new request </a> </p>
+</div>
+<body>
+
+
+</body>
+<div th:replace="fragments/footer :: foot"></div>
+<script>
+    var app = new Vue({
+        el: '#moneyReq',
+        data: {
+            money_requests: []
+        },
+        methods: {
+            fetchSortedData(sortParam) {
+
+            },
+            getToken: function() {
+                return getCookie('access_token');
+            },
+            /*setAccepted: function(moneyRequestId) {
+                if (getCookie('access_token')!=null) {
+                    axios({
+                        method:'put',
+                        url: '/moneyrequests/status/'+moneyRequestId+'?access_token='+getCookie("access_token"),
+                        headers: {"Content-type": 'application/json'},
+                        data: JSON.stringify('ACCEPTED')
+
+                    }).then(function() {
+                        location.reload();
+                    } )
+                        .catch(function(error) {
+                            console.log('problem with post request (set accepted money request method)');
+                            console.log(error);
+                        });
+                }
+            }*/
+        },
+        mounted: function(){
+            if (getCookie('access_token')!=null) {
+                axios.get("/getusername?access_token="+getCookie('access_token'))
+                    .then((function(response){
+                        this.logged_in_user = response.data;
+                    }).bind(this)).catch(function(error) {
+                    console.log("cos sie zjebalo");
+                });
+                axios.get("/moneyrequests/debts?access_token="+getCookie('access_token'))
+                    .then((function(response){
+                        this.money_requests = response.data;
+                    }).bind(this)).catch(function(error) {
+                    console.log("cos sie zjebalo");
+                });
+
+            }
+        }
+
+    });
+</script>
+</html>

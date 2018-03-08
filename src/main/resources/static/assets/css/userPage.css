@@ -1,0 +1,17 @@
+
+body {
+    background-color:#00163a;
+    color: #3af43d;
+}
+h1 {
+    text-align: center;
+    margin-top: 10%
+}
+#menu {
+    width: 30%;
+    margin: 0 auto;
+    padding: 100px 0 100px 100px;
+    background-color: black;
+    border-radius: 5%;
+
+}

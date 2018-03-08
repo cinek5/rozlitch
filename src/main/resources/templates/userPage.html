@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml" xmlns:v-on="http://www.w3.org/1999/xhtml">
+<head>
+    <head th:replace="fragments/header :: header('Rozlitch index')" />
+    <link rel="stylesheet" type="text/css" th:href="@{/assets/css/userPage.css}" />
+</head>
+    <div class="container" id = "greet">
+        <h1>Welcome, {{logged_in_user}}!</h1>
+
+        <div id ="menu">
+
+            <h2>Menu</h2>
+            <ul>
+                <li><a :href="'/myRequests?access_token='+getToken()">[See debts I requested]</a></li>
+                <li><a :href="'/debts?access_token='+getToken()">[See debts requested to me]</a></li>
+                <li><a :href ="'/newRequest?access_token='+getToken()">[Create new money request]</a></li>
+            </ul>
+
+        </div>
+
+    </div>
+<body>
+
+</body>
+<div th:replace="fragments/footer :: foot"></div>
+<script>
+    var app = new Vue({
+        el: '#greet',
+        data: {
+            logged_in_user: ''
+        },
+        methods: {
+          getToken: function() {
+              return getCookie('access_token');
+          }
+        },
+
+        mounted: function() {
+           fetchUsernameAndDoSth(function(responseData) {
+               app.$data.logged_in_user = responseData;
+               console.log(responseData);
+           })
+        }
+
+    });
+
+</script>
+</html>

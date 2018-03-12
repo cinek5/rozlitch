@@ -5,9 +5,8 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/moneyRequestPage.css}" />
 </head>
 <div class="container" id ="moneyReq">
+    <money-requests url="/moneyrequests/debts"></money-requests>
 
-    <money-request class="request" v-for="moneyreq in money_requests" v-bind:moneyreq="moneyreq"></money-request>
-    <p>Click this button to add new request <a :href ="'/newRequest?access_token='+getToken()" class="button-primary" type="button" >Add new request </a> </p>
 </div>
 <body>
 
@@ -18,15 +17,23 @@
     var app = new Vue({
         el: '#moneyReq',
         data: {
-            money_requests: []
+
         },
-        methods: {
-            fetchSortedData(sortParam) {
+        methods: { /*
+            fetchSortedData: function(sortParam) {
+                fetchMoneyRequestsAndDoSth(function(response){
+                    app.$data.money_requests=response;
+                    console.log(response);
+                    console.log('sorted data fetched');
+                },"/moneyrequests/debts",sortParam);
+
+
 
             },
-            getToken: function() {
-                return getCookie('access_token');
-            },
+            switchSortMethod: function()  {
+                this.fetchSortedData(this.sortingParam);
+            }
+            */
             /*setAccepted: function(moneyRequestId) {
                 if (getCookie('access_token')!=null) {
                     axios({
@@ -46,6 +53,7 @@
             }*/
         },
         mounted: function(){
+            /*
             if (getCookie('access_token')!=null) {
                 axios.get("/getusername?access_token="+getCookie('access_token'))
                     .then((function(response){
@@ -61,6 +69,7 @@
                 });
 
             }
+            */
         }
 
     });

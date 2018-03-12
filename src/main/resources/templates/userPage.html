@@ -5,7 +5,7 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/userPage.css}" />
 </head>
     <div class="container" id = "greet">
-        <h1>Welcome, {{logged_in_user}}!</h1>
+        <h1>Welcome, {{logged_in_user}}! <span v-show="isLoggedIn" v-on:click="logout"> Logout</span></h1>
 
         <div id ="menu">
 
@@ -27,19 +27,32 @@
     var app = new Vue({
         el: '#greet',
         data: {
-            logged_in_user: ''
+            logged_in_user: '',
+            isLoggedIn: false
         },
         methods: {
           getToken: function() {
               return getCookie('access_token');
+          },
+          logout: function() {
+              axios.get("/logouts?access_token="+getCookie('access_token'))
+                  .then((function(response){
+                      this.logged_in_user = '';
+                      this.isLoggedIn= false;
+                      delete_cookie('access_token');
+                      location.replace("/");
+                  }).bind(this)).catch(function(error) {
+                  console.log("cos sie zjebalo");
+              });
           }
         },
 
         mounted: function() {
            fetchUsernameAndDoSth(function(responseData) {
-               app.$data.logged_in_user = responseData;
+               this.logged_in_user = responseData;
+               this.isLoggedIn = true;
                console.log(responseData);
-           })
+           }.bind(this))
         }
 
     });

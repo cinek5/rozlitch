@@ -5,6 +5,6 @@ package com.cinek.rozlitch.exception;
  */
 public class DuplicateUserException extends RuntimeException {
     public DuplicateUserException() {
-        super("error: username you've chosen already exists");
+        super("error: username already exist");
     }
 }

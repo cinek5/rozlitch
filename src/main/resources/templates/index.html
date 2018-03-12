@@ -28,10 +28,11 @@
 <script>
     var app = new Vue({
         el: '#root',
+
         mounted() {
-            Event.$on('logged-in',function(){
-                window.location.replace("/");
-            })
+            this.checkIfUserIsLoggedInAndRedirect();
+
+
         },
         data:{
             error: false,
@@ -59,6 +60,18 @@
                     console.log(error);
                 });
             },
+            checkIfUserIsLoggedInAndRedirect: function() {
+                axios({
+                    method:'get',
+                    url:'oauth/check_token?token='+getCookie('access_token'),
+                    auth:{username:'my-trusted-client',password:'secret'},
+                    headers: {"Content-type": "application/x-www-form-urlencoded; charset=utf-8"},
+                }).then(function(response){
+                    location.replace("/userPage?access_token="+getCookie('access_token'));
+                }).catch(function(error) {
+                    console.log("Message: user not logged in");
+                });
+            }
 
         }
     });

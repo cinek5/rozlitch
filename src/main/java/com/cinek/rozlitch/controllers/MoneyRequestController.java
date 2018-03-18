@@ -7,6 +7,7 @@ import com.cinek.rozlitch.models.comparators.ItemPriceComparator;
 import com.cinek.rozlitch.repositories.ItemRepository;
 import com.cinek.rozlitch.repositories.MoneyRequestRepository;
 import com.cinek.rozlitch.repositories.UserRepository;
+import com.cinek.rozlitch.services.MoneyRequestService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +23,8 @@ public class MoneyRequestController {
     UserRepository userRepo;
     @Autowired
     MoneyRequestRepository requestRepo;
+    @Autowired
+    MoneyRequestService requestService;
     @Autowired
     ItemRepository itemRepo;
 
@@ -106,18 +109,28 @@ public class MoneyRequestController {
     @RequestMapping(value="/moneyrequests/status/{moneyReqId}",method=RequestMethod.PUT)
     public void updateStatus(@RequestBody Status status,@PathVariable Long moneyReqId) {
         String username = SecurityHelper.getLoggedInUsername();
-        User creator = userRepo.findByUsername(username);
-        List<MoneyRequest> moneyRequests = requestRepo.findByRequestedUserUsername(username);
+        User loggedInUser = userRepo.findByUsername(username);
         MoneyRequest moneyRequest = requestRepo.findOne(moneyReqId);
-        if (moneyRequest == null || !moneyRequests.contains(moneyRequest)) {
-            // acces denied
-            throw new ForbiddenException();
+        boolean userIsCreatorAndRequestStatusIsAcceptedAndNewStatusIsFinished =
+                moneyRequest.getCreator().equals(loggedInUser) &&
+                        moneyRequest.getStatus()==Status.ACCEPTED &&
+                        status==Status.FINISHED;
+        boolean userIsRequestedUserAndRequestStatusIsRequestedAndNewStatusIsAccepted =
+                moneyRequest.getRequestedUser().equals(loggedInUser) &&
+                        moneyRequest.getStatus()==Status.REQUESTED &&
+                        status == Status.ACCEPTED;
 
-        } else {
-            moneyRequest.setStatus(status);
-            requestRepo.save(moneyRequest);
-            // http status ok
-        }
+        if (moneyRequest != null) {
+            if (userIsCreatorAndRequestStatusIsAcceptedAndNewStatusIsFinished ||
+                    userIsRequestedUserAndRequestStatusIsRequestedAndNewStatusIsAccepted) {
+                moneyRequest.setStatus(status);
+                requestRepo.save(moneyRequest);
+
+
+            } else {
+                throw new ForbiddenException();
+            }
+    } else throw new ForbiddenException();
 
 
     }

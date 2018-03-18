@@ -15,3 +15,8 @@ h1 {
     border-radius: 5%;
 
 }
+.logoutButton {
+    display: block;
+    width: fit-content;
+    margin: 2% auto;
+}

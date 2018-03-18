@@ -6,6 +6,8 @@ import com.cinek.rozlitch.repositories.MoneyRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * Created by Cinek on 14.11.2017.
  */

@@ -96,7 +96,8 @@ Vue.component('money-request',{
         '</table>'+
         '<p>Sum: {{moneyreq.value}}</p>'+
         '<p>Status: {{moneyreq.status}}</p>'+
-        '<a v-if="moneyreq.status!=MONEY_REQUEST_STATUS.ACCEPTED && logged_in_user!=moneyreq.creator.username.toString() " href="#" class="u-full-width button-primary" v-on:click="setStatus(moneyreq,MONEY_REQUEST_STATUS.ACCEPTED)" type="button">Accept request</a>'+
+        '<a v-if="moneyreq.status==MONEY_REQUEST_STATUS.REQUESTED && logged_in_user!=moneyreq.creator.username.toString() " href="#" class="button button-primary" v-on:click="setStatus(moneyreq,MONEY_REQUEST_STATUS.ACCEPTED)" type="button">Accept request</a>'+
+        '<a v-if="moneyreq.status==MONEY_REQUEST_STATUS.ACCEPTED && logged_in_user==moneyreq.creator.username.toString() " href="#" class="button button-primary" v-on:click="setStatus(moneyreq,MONEY_REQUEST_STATUS.FINISHED)" type="button">Finish request</a>'+
     '</div>',
     methods: {
         setStatus: function(moneyreq,status) {
@@ -182,13 +183,13 @@ Vue.component('money-requests',{
                 .then((function(response){
                     this.logged_in_user = response.data;
                 }).bind(this)).catch(function(error) {
-                console.log("cos sie zjebalo");
+                console.log(error);
             });
             axios.get(this.url+"?access_token="+getCookie('access_token'))
                 .then((function(response){
                     this.money_requests = response.data;
                 }).bind(this)).catch(function(error) {
-                console.log("cos sie zjebalo");
+                console.log(error);
             });
 
         }

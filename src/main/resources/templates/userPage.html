@@ -5,7 +5,8 @@
     <link rel="stylesheet" type="text/css" th:href="@{/assets/css/userPage.css}" />
 </head>
     <div class="container" id = "greet">
-        <h1>Welcome, {{logged_in_user}}! <span v-show="isLoggedIn" v-on:click="logout"> Logout</span></h1>
+        <h1>Welcome, {{logged_in_user}}!</h1>
+        <span  v-show="isLoggedIn" class="logoutButton button button-primary" v-on:click="logout"> Logout</span>
 
         <div id ="menu">
 

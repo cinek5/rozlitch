@@ -48,7 +48,7 @@ public class UserController {
     @GetMapping("/otherusers")
         List<User> getOtherUsers() {
               List<User>  users = userService.findAll();
-              User user = userService.findByUserName(SecurityHelper.getLoggedInUsername());
+              User user = userService.findByUsername(SecurityHelper.getLoggedInUsername());
               users.remove(user);
               return users;
        }

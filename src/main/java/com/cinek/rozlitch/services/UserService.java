@@ -32,7 +32,7 @@ public class UserService {
          save(user);
 
     }
-    public User findByUserName(String name)  { return userRepo.findByUsername(name);}
+    public User findByUsername(String name)  { return userRepo.findByUsername(name);}
     public List<User> findAll() {
         return userRepo.findAll();
     }

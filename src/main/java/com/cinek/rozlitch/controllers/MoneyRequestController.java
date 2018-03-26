@@ -6,8 +6,9 @@ import com.cinek.rozlitch.models.*;
 import com.cinek.rozlitch.models.comparators.ItemPriceComparator;
 import com.cinek.rozlitch.repositories.ItemRepository;
 import com.cinek.rozlitch.repositories.MoneyRequestRepository;
-import com.cinek.rozlitch.repositories.UserRepository;
+import com.cinek.rozlitch.services.ItemService;
 import com.cinek.rozlitch.services.MoneyRequestService;
+import com.cinek.rozlitch.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -20,83 +21,72 @@ import java.util.List;
 @RestController
 public class MoneyRequestController {
     @Autowired
-    UserRepository userRepo;
-    @Autowired
-    MoneyRequestRepository requestRepo;
+    UserService userService;
     @Autowired
     MoneyRequestService requestService;
     @Autowired
-    ItemRepository itemRepo;
+    ItemService itemService;
 
     @GetMapping("/moneyrequests")
     public List<MoneyRequest> findAllMoneyRequests() {
-        return requestRepo.findAll();
+        return requestService.findAll();
     }
 
     @GetMapping(value="/moneyrequests/requested",params = "items_sort_by")
     public List<MoneyRequest> moneyRequestsFromMeSorted(@RequestParam("items_sort_by") String itemsSortBy) {
         String username = SecurityHelper.getLoggedInUsername();
-        List<MoneyRequest>  lista = requestRepo.findByCreatorUsername(username);
-        sortList(itemsSortBy,lista);
+        List<MoneyRequest>  lista = requestService.findByCreatorUsername(username);
+        requestService.sortList(itemsSortBy,lista);
         return  lista;
     }
     @GetMapping (value = "/moneyrequests/debts", params ="items_sort_by")
     public List<MoneyRequest> moneyRequestsToMeItemsSorted(@RequestParam("items_sort_by") String itemsSortBy) {
         String username = SecurityHelper.getLoggedInUsername();
-        List<MoneyRequest>  lista = requestRepo.findByRequestedUserUsername(username);
-        sortList(itemsSortBy,lista);
+        List<MoneyRequest>  lista = requestService.findByRequestedUserUsername(username);
+        requestService.sortList(itemsSortBy,lista);
         return lista;
     }
     @GetMapping(value="/moneyrequests/requested")
     public List<MoneyRequest> moneyRequestsFromMe() {
         String username = SecurityHelper.getLoggedInUsername();
-        List<MoneyRequest>  lista = requestRepo.findByCreatorUsername(username);
+        List<MoneyRequest>  lista = requestService.findByCreatorUsername(username);
         return  lista;
     }
 
-    private void sortList(String sortParam,List<MoneyRequest> moneyRequestList ) {
-        switch (sortParam) {
-            case "price": {
-                for (MoneyRequest mr : moneyRequestList) {
-                    mr.sortItems(new ItemPriceComparator());
-                }
-            }
-        }
-    }
+
     @GetMapping("/moneyrequests/debts")
     public List<MoneyRequest> moneyRequestsToMe() {
         String username = SecurityHelper.getLoggedInUsername();
-        List<MoneyRequest>  lista = requestRepo.findByRequestedUserUsername(username);
-        return lista;
+        return requestService.findByRequestedUserUsername(username);
     }
 
     @PostMapping("/moneyrequests/")
     public void createNewMoneyRequest(@RequestBody MoneyRequest moneyRequest) {
         String username = SecurityHelper.getLoggedInUsername();
-        User creator = userRepo.findByUsername(username);
+        User creator = userService.findByUsername(username);
         moneyRequest.setCreator(creator);
-        requestRepo.save(moneyRequest);
+        requestService.save(moneyRequest);
     }
     @GetMapping("/moneyrequests/get-by-user/{requestedUserId}")
     @ResponseStatus(value = HttpStatus.NO_CONTENT)
     public List<MoneyRequest> showMoneyRequest(@PathVariable Long requestedUserId) {
-       return requestRepo.findByRequestedUserId(requestedUserId);
+       return requestService.findByRequestedUserId(requestedUserId);
     }
     @RequestMapping(value="/moneyrequests/{moneyReqId}",method=RequestMethod.POST)
     @ResponseStatus(value = HttpStatus.OK)
     public void addNewItemToMoneyRequest(@RequestBody Item item,@PathVariable Long moneyReqId) {
         String username = SecurityHelper.getLoggedInUsername();
-        User creator = userRepo.findByUsername(username);
-        List<MoneyRequest> moneyRequests = requestRepo.findByCreatorUsername(username);
-        MoneyRequest moneyRequest = requestRepo.findOne(moneyReqId);
+        User creator = userService.findByUsername(username);
+        List<MoneyRequest> moneyRequests = requestService.findByCreatorUsername(username);
+        MoneyRequest moneyRequest = requestService.findById(moneyReqId);
         if (moneyRequest == null || !moneyRequests.contains(moneyRequest)) {
             // acces denied
             throw new ForbiddenException();
 
         } else {
-            itemRepo.save(item);
+            itemService.save(item);
             moneyRequest.addItem(item);
-            requestRepo.save(moneyRequest);
+            requestService.save(moneyRequest);
               // http status ok
         }
 
@@ -109,8 +99,8 @@ public class MoneyRequestController {
     @RequestMapping(value="/moneyrequests/status/{moneyReqId}",method=RequestMethod.PUT)
     public void updateStatus(@RequestBody Status status,@PathVariable Long moneyReqId) {
         String username = SecurityHelper.getLoggedInUsername();
-        User loggedInUser = userRepo.findByUsername(username);
-        MoneyRequest moneyRequest = requestRepo.findOne(moneyReqId);
+        User loggedInUser = userService.findByUsername(username);
+        MoneyRequest moneyRequest = requestService.findById(moneyReqId);
         boolean userIsCreatorAndRequestStatusIsAcceptedAndNewStatusIsFinished =
                 moneyRequest.getCreator().equals(loggedInUser) &&
                         moneyRequest.getStatus()==Status.ACCEPTED &&
@@ -123,9 +113,7 @@ public class MoneyRequestController {
         if (moneyRequest != null) {
             if (userIsCreatorAndRequestStatusIsAcceptedAndNewStatusIsFinished ||
                     userIsRequestedUserAndRequestStatusIsRequestedAndNewStatusIsAccepted) {
-                moneyRequest.setStatus(status);
-                requestRepo.save(moneyRequest);
-
+                requestService.changeStatus(moneyRequest, status);
 
             } else {
                 throw new ForbiddenException();
@@ -136,6 +124,6 @@ public class MoneyRequestController {
     }
     @RequestMapping(value="/moneyrequests/history/{userId}",method = RequestMethod.GET)
     public List<MoneyRequest> showMoneyRequestHistory(@PathVariable Long userId) {
-        return requestRepo.findByCreatorIdOrRequestedUserIdAndStatus(userId,Status.FINISHED);
+        return requestService.findByCreatorIdOrRequestedUserIdAndStatus(userId,Status.FINISHED);
     }
 }
